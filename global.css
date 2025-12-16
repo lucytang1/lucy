@@ -1,0 +1,16 @@
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/preflight.css" layer(base);
+@import "tailwindcss/utilities.css";
+
+ 
+@import "nativewind/theme";
+
+@theme {
+    --color-vb: #0D0208;
+    --color-dg: #003B00;
+    --color-ig: #008F11;
+    --color-mc: #00FF41;
+
+    --font-matrix: "matrix";
+    --font-neo: "neo";
+}

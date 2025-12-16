@@ -1,6 +1,13 @@
 {
   "extends": "expo/tsconfig.base",
   "compilerOptions": {
-    "strict": true
+    "strict": true,
+    "types": ["react-native-web"],
+    // "types": ["react-native-web"],
+    "paths": {
+      "@/*": [
+        "./*"
+      ]
+    }
   }
 }
