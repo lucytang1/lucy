@@ -2,7 +2,7 @@
   "extends": "expo/tsconfig.base",
   "compilerOptions": {
     "strict": true,
-    "types": ["react-native-web"],
+    "types": ["react-native-web", "@webgpu/types"],
     // "types": ["react-native-web"],
     "paths": {
       "@/*": [

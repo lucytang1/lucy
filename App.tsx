@@ -1,5 +1,6 @@
 import "./global.css"
 import {useFonts} from "expo-font";
+import BlogScreen from "./src/screens/blog";
 import { Text, View } from "react-native";
  
 export default function App() {
@@ -11,10 +12,6 @@ export default function App() {
     return <Text>Loading fonts...</Text>
   }
   return (
-    <View className="flex-1 items-center justify-center bg-vb">
-      <Text className="text-xl  text-ig font-neo">
-        Knock knock Neo.
-      </Text>
-    </View>
+    <BlogScreen />
   );
 }
