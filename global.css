@@ -6,11 +6,25 @@
 @import "nativewind/theme";
 
 @theme {
+    /* Colors */
     --color-vb: #0D0208;
     --color-dg: #003B00;
     --color-ig: #008F11;
     --color-mc: #00FF41;
 
+    /* Fonts */
     --font-matrix: "matrix";
     --font-neo: "neo";
+
+    /* Font Sizes */
+    --text-xs: 0.75rem;
+    --text-sm: 1rem;
+    --text-md: 1.25rem;
+    --text-lg: 1.5rem;
+
+    --text-h1: 1.75rem;
+    --text-h2: 1.25rem;
+
+    /* Letter Spacing */
+    --tracking-xs: -0.07em;
 }
