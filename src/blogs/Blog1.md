@@ -366,4 +366,4 @@ Notice that we are using the `--local` flag in our build steps, which was a deli
 
 You also need to make sure that your GitHub releases are consistent and tagged in a specified format like 1.X.Y and you use this tag to target OTA updates.
 
-This blog builds up on the deployment pattern discussed [here](https://docs.expo.dev/eas-update/deployment-patterns/#persistent-staging-flow) and the [bluesky](https://github.com/bluesky-social/social-app) open source expo app.
+This blog builds up on the deployment pattern discussed [here](https://docs.expo.dev/eas-update/deployment-patterns/#persistent-staging-flow) and the [bluesky](https://github.com/bluesky-social/social-app) open source expo app's deployment architecture.
