@@ -1,0 +1,12 @@
+name = "lucy"
+main = "worker.js"
+compatibility_date = "2024-01-01"
+
+# Static assets configuration
+assets = { directory = "dist" }
+
+# Custom domain routing
+routes = [
+  { pattern = "lucytang.dev/*", zone_name = "lucytang.dev" },
+  { pattern = "www.lucytang.dev/*", zone_name = "lucytang.dev" }
+]
