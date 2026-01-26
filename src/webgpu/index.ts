@@ -9,7 +9,15 @@ import bloompass from "./bloompass";
 import palletepass from "./palletepass";
 import endpass from "./endpass";
 
-export async function main({canvas,config, clientwidth, clientheight} : {canvas: CanvasRef, config: any, clientwidth: number, clientheight: number}) {
+export type MatrixController = {
+    resize: (width: number, height: number) => void;
+    stop: () => void;
+};
+
+export async function main({canvas, config, clientwidth, clientheight} : {canvas: CanvasRef, config: any, clientwidth: number, clientheight: number}): Promise<MatrixController> {
+    // Mutable size that can be updated without restarting
+    let currentWidth = clientwidth;
+    let currentHeight = clientheight;
     const canvasFormat = await navigator.gpu.getPreferredCanvasFormat();
     const adapter = await navigator.gpu.requestAdapter();
     if (!adapter) {
@@ -63,8 +71,8 @@ export async function main({canvas,config, clientwidth, clientheight} : {canvas:
 		}
 
         const devicePixelRatio = PixelRatio.get() || 1;
-		const canvasWidth = Math.ceil(clientwidth * devicePixelRatio * config.resolution);
-		const canvasHeight = Math.ceil(clientheight * devicePixelRatio * config.resolution);
+		const canvasWidth = Math.ceil(currentWidth * devicePixelRatio * config.resolution);
+		const canvasHeight = Math.ceil(currentHeight * devicePixelRatio * config.resolution);
 		const canvasSize: [number, number] = [canvasWidth, canvasHeight];
 
 		// On native surfaces, explicitly configure the swapchain size; otherwise it can remain 0x0.
@@ -94,8 +102,14 @@ export async function main({canvas,config, clientwidth, clientheight} : {canvas:
     }
     rafId = requestAnimationFrame(renderLoop);
 
-	return () => {
-		stopped = true;
-		if (rafId != null) cancelAnimationFrame(rafId);
+	return {
+		resize: (width: number, height: number) => {
+			currentWidth = width;
+			currentHeight = height;
+		},
+		stop: () => {
+			stopped = true;
+			if (rafId != null) cancelAnimationFrame(rafId);
+		}
 	};
 }
