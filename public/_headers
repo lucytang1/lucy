@@ -1,0 +1,31 @@
+# Cloudflare Workers Static Assets headers.
+# This file is copied from public/ to dist/ on `expo export`, so it ships
+# as dist/_headers and is honored for asset responses.
+#
+# Goal: hashed bundles / textures / shaders / fonts are content-addressed
+# (or versioned by deploy), so they can be cached immutably at the edge and
+# in the browser. HTML must stay revalidatable so deploys take effect.
+
+/fonts/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/_expo/static/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/shaders/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/blog_assets/*
+  Cache-Control: public, max-age=86400
+
+/favicon.ico
+  Cache-Control: public, max-age=86400
+
+/*.html
+  Cache-Control: public, max-age=0, must-revalidate
+
+/
+  Cache-Control: public, max-age=0, must-revalidate

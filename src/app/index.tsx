@@ -17,6 +17,30 @@ export default function BlogScreen() {
     // at import time) and the WebGPU pipeline (touches `navigator.gpu`).
     const [CanvasComponent, setCanvasComponent] = useState<any>(null);
 
+    // Warm up GPU + start downloading WebGPU chunks ASAP (in parallel with
+    // first paint/layout). On localhost every fetch is ~instant so the old
+    // sequential chain (layout -> import wgpu -> import webgpu -> fetch
+    // shaders/textures -> compile pipelines) was invisible; on Cloudflare
+    // each step costs real network roundtrips, which delayed first frame.
+    // The actual WGSL/PNG bytes are additionally <link rel="preload">ed in
+    // the HTML shell, so by the time main() runs fetch() hits warm cache.
+    const webgpuModulesRef = useRef<Promise<any> | null>(null);
+    useEffect(() => {
+        if (typeof window === 'undefined') return;
+        try {
+            // Kick off GPU adapter request early; result is intentionally
+            // ignored — main() requests its own adapter. This just warms the
+            // browser's GPU process / permission path in the background.
+            (navigator as any)?.gpu?.requestAdapter?.()?.then?.(() => {}).catch?.(() => {});
+        } catch {}
+        if (!webgpuModulesRef.current) {
+            webgpuModulesRef.current = Promise.all([
+                import('../webgpu'),
+                import('../webgpu/config'),
+            ]);
+        }
+    }, []);
+
     useEffect(() => {
         let mounted = true;
         if (typeof window === 'undefined') return;
@@ -47,10 +71,14 @@ export default function BlogScreen() {
 
         (async () => {
             try {
-                const [{ main }, { default: makeConfig }] = await Promise.all([
-                    import('../webgpu'),
-                    import('../webgpu/config'),
-                ]);
+                // Reuse the warmed-up module promises when available so we
+                // don't pay for a second round of chunk downloads.
+                const [{ main }, { default: makeConfig }] = await (
+                    webgpuModulesRef.current ?? Promise.all([
+                        import('../webgpu'),
+                        import('../webgpu/config'),
+                    ])
+                );
                 const config = makeConfig();
                 const controller = await main({canvas, config, clientwidth: viewSize.width, clientheight: viewSize.height});
                 if (cancelled) {
