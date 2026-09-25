@@ -1,16 +1,13 @@
 import "../../global.css"
 import { Slot } from "expo-router";
-import { Text, View } from "react-native";
-import { PostHogProvider } from 'posthog-react-native'
-import AsyncStorage from '@react-native-async-storage/async-storage'
 
 export default function RootLayout() {
+  // NOTE: keep this layout free of static native-only imports
+  // (e.g. posthog-react-native, AsyncStorage). If you re-enable PostHog,
+  // dynamically import it inside a `useEffect` guarded by
+  // `typeof window !== 'undefined'` so Node static rendering
+  // (`expo export --platform web`) doesn't hit `window is not defined`.
   return (
-    // <PostHogProvider apiKey="phc_hPhzKttZrCe9Mv8wYiXdCYq7nQsl6LypkOK2853BnnK" options={{
-    //   host: 'https://prp.lucytang.dev',
-    //   customStorage: AsyncStorage
-    // }}>
-    // {/* </PostHogProvider> */}
     <Slot />
   );
 }

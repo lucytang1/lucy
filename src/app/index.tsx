@@ -1,9 +1,8 @@
 import { useRef, useEffect, useCallback, useState } from 'react';
 import {View, Text, LayoutChangeEvent, ScrollView, Pressable, Linking} from 'react-native';
-import {Canvas, CanvasRef} from 'react-native-wgpu';
 import { useRouter } from 'expo-router';
-import  makeConfig  from '../webgpu/config';
-import { main, MatrixController } from '../webgpu';
+import type { CanvasRef } from 'react-native-wgpu';
+import type { MatrixController } from '../webgpu';
 import Github from '../../assets/logos/github-white.svg';
 
 export default function BlogScreen() {
@@ -13,6 +12,21 @@ export default function BlogScreen() {
     const [viewSize, setViewSize] = useState({ width: 0, height: 0 });
     const [isInitialized, setIsInitialized] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    // Loaded only on the client — keeps Node SSR (`expo export`) from
+    // evaluating `react-native-wgpu` (its web polyfill touches `window`
+    // at import time) and the WebGPU pipeline (touches `navigator.gpu`).
+    const [CanvasComponent, setCanvasComponent] = useState<any>(null);
+
+    useEffect(() => {
+        let mounted = true;
+        if (typeof window === 'undefined') return;
+        import('react-native-wgpu').then((mod) => {
+            if (mounted) setCanvasComponent(() => mod.Canvas);
+        });
+        return () => {
+            mounted = false;
+        };
+    }, []);
     
     const onlayout = useCallback((e: LayoutChangeEvent) => {
         const {width, height} = e.nativeEvent.layout;
@@ -20,8 +34,11 @@ export default function BlogScreen() {
     }, []);
     
     // Initialize once when canvas and initial size are ready
+    // NOTE: WebGPU modules are dynamically imported so they never run
+    // during server-side static rendering (Node has no `window`/`navigator`).
     useEffect(() => {
         if (isInitialized || !viewSize.width || !viewSize.height) return;
+        if (!CanvasComponent) return;
         const canvas = canvasRef.current;
         if (!canvas) return;
         
@@ -30,6 +47,10 @@ export default function BlogScreen() {
 
         (async () => {
             try {
+                const [{ main }, { default: makeConfig }] = await Promise.all([
+                    import('../webgpu'),
+                    import('../webgpu/config'),
+                ]);
                 const config = makeConfig();
                 const controller = await main({canvas, config, clientwidth: viewSize.width, clientheight: viewSize.height});
                 if (cancelled) {
@@ -49,7 +70,7 @@ export default function BlogScreen() {
         return () => {
             cancelled = true;
         };
-    }, [viewSize.width, viewSize.height, isInitialized]);
+    }, [viewSize.width, viewSize.height, isInitialized, CanvasComponent]);
 
     // Handle resize without restarting animation
     useEffect(() => {
@@ -65,7 +86,11 @@ export default function BlogScreen() {
     }, []);
     return (
         <View className='flex-1 bg-vb' onLayout={onlayout}>
-            <Canvas ref={canvasRef} className='flex-1 absolute inset-0 z-0 bg-vb'/>
+            {CanvasComponent ? (
+                <CanvasComponent ref={canvasRef} className='flex-1 absolute inset-0 z-0 bg-vb' />
+            ) : (
+                <View className='flex-1 absolute inset-0 z-0 bg-vb' collapsable={false} />
+            )}
             <View className="absolute inset-0 z-10" collapsable={false}>
                 <View className="flex-1 w-2/3 self-center bg-black">
                     <View className='items-end py-2 px-12'>

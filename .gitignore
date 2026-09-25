@@ -45,3 +45,6 @@ nativewind-env.d.ts
 
 # wrangler
 .wrangler
+
+# lockFiles
+package-lock.json
